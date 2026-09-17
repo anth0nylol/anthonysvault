@@ -1,0 +1,87 @@
+'use strict';
+const workspace=document.getElementById('research-workspace');
+let workspaceReady=false,pendingTool=null;
+function openTool(tool){workspace.contentWindow.postMessage({type:'vault-tool',tool},location.origin);}
+function workspaceLoaded(){workspaceReady=true;if(pendingTool){openTool(pendingTool);pendingTool=null;}}
+workspace.addEventListener('load',workspaceLoaded);
+window.addEventListener('message',event=>{
+  if(event.origin!==location.origin||event.source!==workspace.contentWindow||event.data?.type!=='vault-height')return;
+  workspaceLoaded();
+  const height=Number(event.data.height);if(Number.isFinite(height)&&height>=350&&height<=6000)workspace.style.height=Math.ceil(height)+'px';
+});
+document.querySelectorAll('[data-explore]').forEach(button=>button.addEventListener('click',()=>{
+  if(workspaceReady)openTool(button.dataset.explore);else pendingTool=button.dataset.explore;
+  document.getElementById('replay').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
+}));
+
+// The silent hero is the only automatic media. The full film loads on request.
+const hero=document.getElementById('hero-loop');
+const loopToggle=document.getElementById('loop-toggle');
+const trailerDialog=document.getElementById('trailer-dialog');
+const fullTrailer=document.getElementById('full-trailer');
+const reducedMotion=matchMedia('(prefers-reduced-motion:reduce)');
+let wantsLoop=!reducedMotion.matches&&!navigator.connection?.saveData;
+let heroVisible=false,returnFocus=null,pendingSeek=null;
+let trailerAsset=null,trailerObjectUrl=null,trailerRequest=null,trailerRequestId=0;
+function loadVideo(video){if(!video.getAttribute('src')){video.src=video.dataset.src;video.load();}}
+function reflectLoop(){
+  const playing=!hero.paused;
+  loopToggle.textContent=playing?'Pause preview':'Play preview';
+  loopToggle.setAttribute('aria-pressed',String(playing));
+}
+function syncLoop(){
+  if(wantsLoop&&heroVisible&&!document.hidden&&!trailerDialog.open){loadVideo(hero);hero.play().catch(reflectLoop);}
+  else hero.pause();
+  reflectLoop();
+}
+hero.addEventListener('play',reflectLoop);
+hero.addEventListener('pause',reflectLoop);
+hero.addEventListener('error',()=>{wantsLoop=false;hero.pause();reflectLoop();});
+loopToggle.addEventListener('click',()=>{wantsLoop=hero.paused;syncLoop();});
+if('IntersectionObserver' in window){
+  new IntersectionObserver(entries=>{heroVisible=entries[0].isIntersecting;syncLoop();},{threshold:.1}).observe(hero);
+}else{heroVisible=true;syncLoop();}
+document.addEventListener('visibilitychange',syncLoop);
+reducedMotion.addEventListener('change',()=>{wantsLoop=!reducedMotion.matches&&!navigator.connection?.saveData;syncLoop();});
+function seekTrailer(){
+  if(pendingSeek!==null&&fullTrailer.readyState>=1){fullTrailer.currentTime=pendingSeek;pendingSeek=null;}
+}
+fullTrailer.addEventListener('loadedmetadata',seekTrailer);
+fullTrailer.addEventListener('error',()=>{document.getElementById('trailer-error').hidden=false;});
+document.querySelectorAll('[data-trailer]').forEach(button=>button.addEventListener('click',async()=>{
+  returnFocus=button;pendingSeek=Number(button.dataset.trailer)||0;
+  const portrait=matchMedia('(max-width:600px)').matches;
+  const source=portrait?'assets/vault-trailer-vertical-v2.mp4':fullTrailer.dataset.src;
+  fullTrailer.poster=portrait?'assets/vault-trailer-vertical-v2.jpg':'assets/vault-trailer-v2.jpg';
+  trailerDialog.classList.toggle('portrait-film',portrait);
+  trailerDialog.querySelector('.trailer-dialog-foot a').href=source;
+  trailerDialog.showModal();document.body.classList.add('trailer-open');
+  syncLoop();
+  if(trailerAsset!==source){
+    fullTrailer.pause();fullTrailer.removeAttribute('src');fullTrailer.load();trailerAsset=null;
+    document.getElementById('trailer-error').hidden=true;
+    const loading=document.getElementById('trailer-loading');loading.hidden=false;
+    const requestId=++trailerRequestId;
+    trailerRequest?.abort();trailerRequest=new AbortController();
+    try{
+      // A complete local media buffer permits accurate seeking even on hosts
+      // that serve MP4s without HTTP byte-range support. Loaded only on request.
+      const response=await fetch(source,{signal:trailerRequest.signal});
+      if(!response.ok)throw new Error('Video unavailable');
+      const blob=await response.blob();
+      if(requestId!==trailerRequestId||!trailerDialog.open)return;
+      if(trailerObjectUrl)URL.revokeObjectURL(trailerObjectUrl);
+      trailerObjectUrl=URL.createObjectURL(new Blob([blob],{type:'video/mp4'}));
+      trailerAsset=source;fullTrailer.src=trailerObjectUrl;fullTrailer.load();
+    }catch(error){
+      if(error.name!=='AbortError'&&requestId===trailerRequestId)document.getElementById('trailer-error').hidden=false;
+      return;
+    }finally{
+      if(requestId===trailerRequestId)loading.hidden=true;
+    }
+  }
+  seekTrailer();fullTrailer.play().catch(()=>{});
+}));
+document.getElementById('close-trailer').addEventListener('click',()=>trailerDialog.close());
+trailerDialog.addEventListener('click',event=>{if(event.target===trailerDialog){const r=trailerDialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)trailerDialog.close();}});
+trailerDialog.addEventListener('close',()=>{fullTrailer.pause();trailerRequestId++;trailerRequest?.abort();document.getElementById('trailer-loading').hidden=true;document.body.classList.remove('trailer-open');returnFocus?.focus({preventScroll:true});syncLoop();});
