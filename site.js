@@ -85,3 +85,34 @@ document.querySelectorAll('[data-trailer]').forEach(button=>button.addEventListe
 document.getElementById('close-trailer').addEventListener('click',()=>trailerDialog.close());
 trailerDialog.addEventListener('click',event=>{if(event.target===trailerDialog){const r=trailerDialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)trailerDialog.close();}});
 trailerDialog.addEventListener('close',()=>{fullTrailer.pause();trailerRequestId++;trailerRequest?.abort();document.getElementById('trailer-loading').hidden=true;document.body.classList.remove('trailer-open');returnFocus?.focus({preventScroll:true});syncLoop();});
+
+// ---- Analytics: WF-001 baseline (added 2026-09-21). Cookie-free. Every call is inert if the script is blocked. ----
+// Funnel: Landing (pageview) -> Replay Interact -> Membership CTA -> Checkout Click -> Paid Member (Memberful side, unverified).
+(function(){
+  function track(name){try{if(typeof window.plausible==='function')window.plausible(name);}catch(e){}}
+  // Keep the campaign tags of this visit (the TikTok bio link carries them) and hand them to the Memberful checkout link.
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_content','utm_term'],tags={};
+  try{
+    var q=new URLSearchParams(location.search);
+    KEYS.forEach(function(k){var v=q.get(k);if(v)tags[k]=v.slice(0,80);});
+    if(Object.keys(tags).length)sessionStorage.setItem('av_utm',JSON.stringify(tags));
+    else tags=JSON.parse(sessionStorage.getItem('av_utm')||'{}');
+  }catch(e){}
+  document.querySelectorAll('a[href*="/checkout?"]').forEach(function(a){
+    a.addEventListener('click',function(){
+      try{var u=new URL(a.href);KEYS.forEach(function(k){if(tags[k]&&!u.searchParams.has(k))u.searchParams.set(k,tags[k]);});a.href=u.toString();}catch(e){}
+      track('Checkout Click');
+    });
+  });
+  document.querySelectorAll('a[href="#membership"]').forEach(function(a){a.addEventListener('click',function(){track('Membership CTA');});});
+  // Replay = the first tap or key inside the Research Workspace. The iframe is same-origin, so workspace.html is NOT changed.
+  var replayed=false;
+  function replay(){if(!replayed){replayed=true;track('Replay Interact');}}
+  function watch(){try{var d=workspace.contentDocument;if(!d)return;['pointerdown','keydown'].forEach(function(t){d.addEventListener(t,replay,{capture:true,passive:true});});}catch(e){}}
+  workspace.addEventListener('load',watch);watch();
+  // A card button that opens the replay in a preset is a replay interaction too.
+  document.querySelectorAll('[data-explore]').forEach(function(b){b.addEventListener('click',function(){track('Explore Click');replay();});});
+  // Diagnostics only.
+  document.querySelectorAll('[data-trailer]').forEach(function(b){b.addEventListener('click',function(){track('Trailer Open');});});
+  fullTrailer.addEventListener('ended',function(){track('Trailer Complete');});
+})();
