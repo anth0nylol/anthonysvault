@@ -3,9 +3,9 @@ const workspace=document.getElementById('research-workspace');
 let workspaceReady=false,pendingTool=null;
 function openTool(tool){workspace.contentWindow.postMessage({type:'vault-tool',tool},location.origin);}
 function workspaceLoaded(){workspaceReady=true;if(pendingTool){openTool(pendingTool);pendingTool=null;}}
-workspace.addEventListener('load',workspaceLoaded);
+workspace?.addEventListener('load',workspaceLoaded);
 window.addEventListener('message',event=>{
-  if(event.origin!==location.origin||event.source!==workspace.contentWindow||event.data?.type!=='vault-height')return;
+  if(event.origin!==location.origin||event.source!==workspace?.contentWindow||event.data?.type!=='vault-height')return;
   workspaceLoaded();
   const height=Number(event.data.height);if(Number.isFinite(height)&&height>=350&&height<=6000)workspace.style.height=Math.ceil(height)+'px';
 });
@@ -16,6 +16,7 @@ document.querySelectorAll('[data-explore]').forEach(button=>button.addEventListe
 
 // The silent hero is the only automatic media. The full film loads on request.
 const hero=document.getElementById('hero-loop');
+if(hero){
 const loopToggle=document.getElementById('loop-toggle');
 const trailerDialog=document.getElementById('trailer-dialog');
 const fullTrailer=document.getElementById('full-trailer');
@@ -86,6 +87,8 @@ document.getElementById('close-trailer').addEventListener('click',()=>trailerDia
 trailerDialog.addEventListener('click',event=>{if(event.target===trailerDialog){const r=trailerDialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)trailerDialog.close();}});
 trailerDialog.addEventListener('close',()=>{fullTrailer.pause();trailerRequestId++;trailerRequest?.abort();document.getElementById('trailer-loading').hidden=true;document.body.classList.remove('trailer-open');returnFocus?.focus({preventScroll:true});syncLoop();});
 
+}
+
 // ---- Analytics: WF-001 baseline (added 2026-09-21). Cookie-free. Every call is inert if the script is blocked. ----
 // Funnel: Landing (pageview) -> Replay Interact -> Membership CTA -> Checkout Click -> Paid Member (Memberful side, unverified).
 (function(){
@@ -104,15 +107,25 @@ trailerDialog.addEventListener('close',()=>{fullTrailer.pause();trailerRequestId
       track('Checkout Click');
     });
   });
-  document.querySelectorAll('a[href="#membership"]').forEach(function(a){a.addEventListener('click',function(){track('Membership CTA');});});
+  document.querySelectorAll('a[href$="#membership"]').forEach(function(a){a.addEventListener('click',function(){track('Membership CTA');});});
   // Replay = the first tap or key inside the Research Workspace. The iframe is same-origin, so workspace.html is NOT changed.
   var replayed=false;
   function replay(){if(!replayed){replayed=true;track('Replay Interact');}}
-  function watch(){try{var d=workspace.contentDocument;if(!d)return;['pointerdown','keydown'].forEach(function(t){d.addEventListener(t,replay,{capture:true,passive:true});});}catch(e){}}
-  workspace.addEventListener('load',watch);watch();
+  function watch(){try{var d=workspace?.contentDocument;if(!d)return;['pointerdown','keydown'].forEach(function(t){d.addEventListener(t,replay,{capture:true,passive:true});});}catch(e){}}
+  workspace?.addEventListener('load',watch);watch();
   // A card button that opens the replay in a preset is a replay interaction too.
   document.querySelectorAll('[data-explore]').forEach(function(b){b.addEventListener('click',function(){track('Explore Click');replay();});});
   // Diagnostics only.
   document.querySelectorAll('[data-trailer]').forEach(function(b){b.addEventListener('click',function(){track('Trailer Open');});});
-  fullTrailer.addEventListener('ended',function(){track('Trailer Complete');});
+  document.getElementById('full-trailer')?.addEventListener('ended',function(){track('Trailer Complete');});
 })();
+
+// The original Sierra capture is shown without altering its pixels or study output.
+const chartDialog=document.getElementById('chart-dialog');
+if(chartDialog){
+  const chartLink=document.querySelector('[data-chart]');
+  chartLink.addEventListener('click',event=>{event.preventDefault();chartDialog.showModal();document.body.classList.add('chart-open');});
+  document.getElementById('close-chart').addEventListener('click',()=>chartDialog.close());
+  chartDialog.addEventListener('close',()=>{document.body.classList.remove('chart-open');chartLink.focus({preventScroll:true});});
+  chartDialog.addEventListener('click',event=>{if(event.target===chartDialog){const r=chartDialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)chartDialog.close();}});
+}
