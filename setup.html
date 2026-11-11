@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sierra Chart setup guide · Anthony’s Vault</title>
+<meta name="description" content="Install Sierra Chart, activate Package 11 and connect Rithmic or the Denali feed. Every step, with links.">
+<meta name="theme-color" content="#050505"><link rel="canonical" href="https://anthonysvault.com/setup.html">
+<link rel="icon" href="assets/vault.svg" type="image/svg+xml">
+<!-- Privacy-friendly analytics by Plausible -->
+<script async src="https://plausible.io/js/pa-Hq44Lk_SXXTGRcr0beHpS.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
+<style>
+  :root{--bg:#050505;--panel:#0b0c0d;--line:#1b1c1f;--ink:#e8e8ea;--ink2:#c3c2b7;--ink3:#898781;--g3:#565a62;--red:#941C22;--red2:#c0393f;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Roboto Mono",monospace;--sans:"Helvetica Neue","Inter","Segoe UI",system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink2);font-family:var(--sans);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:var(--ink)}
+  .wrap{max-width:760px;margin:0 auto;padding:0 22px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:22px 0 0}
+  header a.home{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink2);font-size:11.5px;letter-spacing:.45em}
+  header img{width:34px;height:34px}
+  header a.join{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--ink3);text-decoration:none}
+  header a.join:hover{color:var(--ink)}
+  .hero{padding:90px 0 40px}
+  .kick{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--ink3)}
+  h1{margin-top:14px;font-weight:300;font-size:clamp(30px,5vw,44px);line-height:1.15;color:var(--ink);letter-spacing:-.01em}
+  .hero p{margin-top:18px;max-width:560px}
+  .need{margin-top:34px;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .need div{padding:16px 14px 16px 0;font-size:13.5px}
+  .need b{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:.22em;color:var(--ink3);margin-bottom:4px}
+  @media(max-width:620px){.need{grid-template-columns:1fr}.need div{border-bottom:1px solid var(--line)}.need div:last-child{border:0}}
+
+  .step{position:relative;padding:54px 0 10px 64px;border-top:1px solid var(--line)}
+  .num{position:absolute;left:0;top:56px;font-family:var(--mono);font-size:12px;color:var(--ink3);letter-spacing:.1em}
+  .num::after{content:"";display:block;width:24px;height:1px;background:var(--red);margin-top:10px}
+  h2{font-weight:400;font-size:22px;color:var(--ink);margin-bottom:14px}
+  h3{font-weight:500;font-size:15px;color:var(--ink);margin:24px 0 8px}
+  ol,ul{padding-left:20px}
+  li{margin:7px 0}
+  li::marker{color:var(--g3);font-family:var(--mono);font-size:12px}
+  .m{font-family:var(--mono);font-size:13px;color:var(--ink);background:#111214;border:1px solid var(--line);padding:1px 6px;white-space:nowrap}
+  .note{margin:18px 0 6px;padding:12px 16px;border-left:2px solid var(--g3);background:var(--panel);font-size:14.5px}
+  .note.warn{border-left-color:var(--red2)}
+  @media(max-width:620px){.step{padding-left:0}.num{position:static;margin-bottom:12px}}
+
+  .paths{display:flex;gap:0;margin:6px 0 4px;border:1px solid var(--line);width:max-content;max-width:100%}
+  .paths button{background:none;border:0;color:var(--ink3);font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;padding:11px 16px;cursor:pointer}
+  .paths button.on{color:var(--ink);background:#111214;box-shadow:inset 0 -1px 0 var(--red2)}
+  .path{display:none}.path.on{display:block}
+  .which{font-size:14px;color:var(--ink3);margin-bottom:14px}
+
+  table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
+  th{font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:.2em;color:var(--ink3);text-align:left;padding:8px 10px 8px 0;border-bottom:1px solid var(--line)}
+  td{padding:11px 10px 11px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  td:first-child{color:var(--ink)}
+  .fig{margin:22px 0 6px;border:1px solid var(--line);background:#08090a;padding:14px}.fig svg{width:100%;height:auto;display:block}.fig figcaption{font-family:var(--mono);font-size:10.5px;color:var(--ink3);margin-top:8px;letter-spacing:.06em}
+  .end{padding:70px 0 40px;border-top:1px solid var(--line);text-align:center}
+  .end p{max-width:460px;margin:0 auto}
+  a.btn{display:inline-block;margin-top:26px;padding:13px 28px;border:1px solid #2c2d31;color:var(--ink);text-decoration:none;font-size:11.5px;letter-spacing:.4em}
+  a.btn:hover{border-color:var(--red)}
+  footer{padding:30px 0 40px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  footer a{color:var(--ink3);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="home" href="index.html"><img src="assets/vault.svg" alt="">ANTHONY’S VAULT</a>
+  <a class="join" href="https://members.anthonyslab.shop/checkout?plan=149330">JOIN ↗</a>
+</header>
+
+<section class="hero">
+  <div class="kick">SIERRA CHART SETUP GUIDE</div>
+  <h1>Sierra Chart, installed<br>and connected.</h1>
+  <p>Everything from a fresh Windows PC to a live ES chart: the account, the install, the package and the data feed. Every link goes to Sierra Chart's own site. Do the steps in order.</p>
+  <div class="need">
+    <div><b>COMPUTER</b>Windows. Sierra Chart has no Mac version.</div>
+    <div><b>PACKAGE</b>Service Package 11.</div>
+    <div><b>DATA</b>Rithmic through your prop firm, or Sierra's Denali feed.</div>
+  </div>
+</section>
+
+<section class="step" id="path">
+  <div class="num">00</div>
+  <h2>Pick your path</h2>
+  <p>Both paths use Package 11. The difference is where your market data comes from.</p>
+  <figure class="fig">
+    <svg viewBox="0 0 680 250" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,Consolas,monospace" role="img" aria-label="Prop firm account uses Rithmic data. Own funded futures account uses Denali data. Both need Package 11.">
+      <rect x="250" y="14" width="180" height="46" fill="#0b0c0d" stroke="#2c2d31"/>
+      <text x="340" y="34" fill="#e8e8ea" font-size="12" text-anchor="middle" letter-spacing="2">YOUR ACCOUNT</text>
+      <text x="340" y="50" fill="#898781" font-size="10.5" text-anchor="middle">what do you trade?</text>
+      <path d="M300 60 L150 104 M380 60 L530 104" stroke="#565a62" fill="none"/>
+      <rect x="40" y="104" width="220" height="62" fill="#0b0c0d" stroke="#2c2d31"/>
+      <text x="150" y="128" fill="#e8e8ea" font-size="12" text-anchor="middle" letter-spacing="2">PROP FIRM</text>
+      <text x="150" y="146" fill="#898781" font-size="10.5" text-anchor="middle">evaluation or funded</text>
+      <rect x="420" y="104" width="220" height="62" fill="#0b0c0d" stroke="#2c2d31"/>
+      <text x="530" y="128" fill="#e8e8ea" font-size="12" text-anchor="middle" letter-spacing="2">OWN ACCOUNT</text>
+      <text x="530" y="146" fill="#898781" font-size="10.5" text-anchor="middle">live funded broker account</text>
+      <path d="M150 166 L150 190 M530 166 L530 190" stroke="#565a62"/>
+      <rect x="40" y="190" width="220" height="44" fill="#111214" stroke="#c0393f"/>
+      <text x="150" y="217" fill="#e8e8ea" font-size="12" text-anchor="middle" letter-spacing="2">PACKAGE 11 + RITHMIC</text>
+      <rect x="420" y="190" width="220" height="44" fill="#111214" stroke="#c0393f"/>
+      <text x="530" y="217" fill="#e8e8ea" font-size="12" text-anchor="middle" letter-spacing="2">PACKAGE 11 + DENALI</text>
+    </svg>
+  </figure>
+  <div class="note">Not sure? If your account comes from a prop firm, use Rithmic. Sierra's lower Denali price needs a live, funded futures account, and prop firm evaluation accounts do not qualify.</div>
+</section>
+
+<section class="step" id="account">
+  <div class="num">01</div>
+  <h2>Create a Sierra Chart account</h2>
+  <ol>
+    <li>Open <a href="https://www.sierrachart.com/RegisterStep1.php" rel="noopener">sierrachart.com/RegisterStep1.php</a> and create an account.</li>
+    <li>Write down your <b>Sierra Chart username</b>. You log in to the software with it. Studies you buy from other people are also linked to it.</li>
+  </ol>
+</section>
+
+<section class="step" id="install">
+  <div class="num">02</div>
+  <h2>Download and install</h2>
+  <ol>
+    <li>On <a href="https://www.sierrachart.com/" rel="noopener">sierrachart.com</a>, open <span class="m">Main » Software Download</span> and download the installer.</li>
+    <li>Run it. Install to <span class="m">C:\SierraChart</span>. Do not install under your Desktop or Documents.</li>
+    <li>Start Sierra Chart and log in with your Sierra Chart username and password.</li>
+    <li>Update to the newest version: <span class="m">Help » Download Current Version</span>. Sierra restarts when it is done.</li>
+  </ol>
+</section>
+
+<section class="step" id="package">
+  <div class="num">03</div>
+  <h2>Activate Service Package 11</h2>
+  <ol>
+    <li>Log in to the <a href="https://www.sierrachart.com/UserControlPanel.php" rel="noopener">Account Control Panel</a>.</li>
+    <li>Add funds on <a href="https://www.sierrachart.com/UserControlPanel.php?page=AddAccountCredit#MoveToTop" rel="noopener">Make a Payment</a>.</li>
+    <li>Open <a href="https://www.sierrachart.com/UserControlPanel.php?page=ServicesActivation#MoveToTop" rel="noopener">Activate Services</a> and choose <b>Service Package 11 · Integrated with Advanced Features</b>.</li>
+  </ol>
+  <table>
+    <tr><th>PACKAGE</th><th>DATA FEED / BROKER</th><th>FOOTPRINT · TPO</th><th>USE IT?</th></tr>
+    <tr><td>5</td><td>No</td><td>Yes</td><td>No</td></tr>
+    <tr><td>10</td><td>Yes</td><td>No</td><td>No</td></tr>
+    <tr><td>11</td><td>Yes</td><td>Yes</td><td><b style="color:#e8e8ea">Yes</b></td></tr>
+  </table>
+  <div class="note">Package 11 was 46 USD a month on 11 Nov 2026. Sierra changes prices from time to time. See <a href="https://www.sierrachart.com/index.php?page=doc/Packages.php" rel="noopener">Sierra's package page</a> for the current price.</div>
+</section>
+
+<section class="step" id="data">
+  <div class="num">04</div>
+  <h2>Connect your data feed</h2>
+  <div class="paths" role="tablist">
+    <button class="on" data-p="rithmic">PROP FIRM · RITHMIC</button>
+    <button data-p="denali">OWN ACCOUNT · DENALI</button>
+  </div>
+
+  <div class="path on" id="p-rithmic">
+    <h3>Before Sierra</h3>
+    <ol>
+      <li>Find your Rithmic username, password and server name in your prop firm's dashboard or welcome email.</li>
+      <li>Sign the Rithmic agreements once. Your firm gives you the link, or you log in to Rithmic R|Trader once. Without the agreements Sierra shows "permission denied".</li>
+    </ol>
+    <h3>In Sierra Chart</h3>
+    <ol>
+      <li>Open <span class="m">Global Settings » Data/Trade Service Settings</span>.</li>
+      <li>In <b>Current Selected Service</b>, choose <b>Rithmic Direct - DTC [Trading]</b>. Press OK.</li>
+      <li>Wait 10 seconds. Open <span class="m">Data/Trade Service Settings</span> again. The <b>Server</b> list now fills.</li>
+      <li>Choose the server your prop firm names. "Paper Trading" servers are for evaluation and sim accounts.</li>
+      <li>Type the Rithmic username and password into <b>Trading</b>, <b>Market Data</b> and <b>Historical Data</b>. Use the same pair in all three. Type them by hand. They are case sensitive.</li>
+      <li>Press OK. Then <span class="m">File » Connect to Data Feed</span>.</li>
+    </ol>
+    <figure class="fig">
+      <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,system-ui,sans-serif" role="img" aria-label="Diagram of the Data/Trade Service Settings window with the fields to fill in numbered">
+        <rect x="20" y="10" width="660" height="280" fill="#0b0c0d" stroke="#2c2d31"/>
+        <rect x="20" y="10" width="660" height="26" fill="#141518"/>
+        <text x="34" y="28" fill="#c3c2b7" font-size="12">Data/Trade Service Settings</text>
+        <text x="40" y="58" fill="#e8e8ea" font-size="11.5">Main Settings</text><line x1="40" y1="63" x2="118" y2="63" stroke="#c0393f"/>
+        <text x="136" y="58" fill="#898781" font-size="11.5">Common Settings</text>
+        <g font-size="12">
+          <text x="40" y="96" fill="#898781">Current Selected Service</text><rect x="290" y="82" width="292" height="22" fill="#111214" stroke="#3a3c40"/><text x="300" y="97" fill="#e8e8ea">Rithmic Direct - DTC [Trading]</text>
+          <text x="40" y="134" fill="#898781">Server</text><rect x="290" y="120" width="292" height="22" fill="#111214" stroke="#3a3c40"/><text x="300" y="135" fill="#e8e8ea">your firm's server</text>
+          <text x="40" y="172" fill="#898781">Trading Username / Password</text><rect x="290" y="158" width="140" height="22" fill="#111214" stroke="#3a3c40"/><rect x="442" y="158" width="140" height="22" fill="#111214" stroke="#3a3c40"/>
+          <text x="40" y="210" fill="#898781">Market Data Username / Password</text><rect x="290" y="196" width="140" height="22" fill="#111214" stroke="#3a3c40"/><rect x="442" y="196" width="140" height="22" fill="#111214" stroke="#3a3c40"/>
+          <text x="40" y="248" fill="#898781">Historical Data Username / Password</text><rect x="290" y="234" width="140" height="22" fill="#111214" stroke="#3a3c40"/><rect x="442" y="234" width="140" height="22" fill="#111214" stroke="#3a3c40"/>
+        </g>
+        <g font-family="ui-monospace,Consolas,monospace" font-size="11" fill="#050505">
+          <circle cx="604" cy="93" r="10" fill="#c0393f"/><text x="604" y="97" text-anchor="middle">1</text>
+          <circle cx="604" cy="131" r="10" fill="#c0393f"/><text x="604" y="135" text-anchor="middle">2</text>
+          <circle cx="604" cy="207" r="10" fill="#c0393f"/><text x="604" y="211" text-anchor="middle">3</text>
+        </g>
+        <text x="620" y="211" fill="#898781" font-size="10.5" font-family="ui-monospace,Consolas,monospace">same pair</text>
+        <text x="620" y="223" fill="#898781" font-size="10.5" font-family="ui-monospace,Consolas,monospace">in all 3</text>
+      </svg>
+      <figcaption>Diagram, not a screenshot. Field names match Sierra's window.</figcaption>
+    </figure>
+    <div class="note">Sierra's own docs say Rithmic's market depth has known issues in Sierra Chart. If a depth tool looks thin or frozen, check the feed first.</div>
+    <p style="margin-top:12px;font-size:14px">Sierra's full instructions: <a href="https://www.sierrachart.com/index.php?page=doc/Rithmic.php" rel="noopener">Rithmic setup</a>.</p>
+  </div>
+
+  <div class="path" id="p-denali">
+    <h3>On the Sierra Chart website</h3>
+    <ol>
+      <li>Add enough funds to cover the package and the exchange fee: <a href="https://www.sierrachart.com/UserControlPanel.php?page=AddAccountCredit#MoveToTop" rel="noopener">Make a Payment</a>.</li>
+      <li>Sign the CME agreements in the Account Control Panel: the <b>Uniform Subscriber Agreement</b> and the <b>CME Non Professional Certification</b>. Sign both in the same session. For non-professional pricing, enter your funded futures account number and clearing firm.</li>
+      <li>On the <b>Denali Data Feed Exchanges</b> page, activate <b>CME with Market Depth</b>. Pick an option that says "with Market Depth". Without it you get no order book.</li>
+    </ol>
+    <h3>In Sierra Chart</h3>
+    <ol>
+      <li>Open <span class="m">Global Settings » Data/Trade Service Settings » Common Settings</span>. Set <b>Allow Support for Sierra Chart Data Feeds</b> to <b>Yes</b>.</li>
+      <li>In <b>Current Selected Service</b>, choose <b>SC Data</b>, or your broker's trading service if you trade through Sierra.</li>
+      <li>Press OK. Then <span class="m">File » Reconnect</span>.</li>
+      <li>Check that <b>[M]</b> shows after the symbol on your chart. That is Denali data.</li>
+    </ol>
+    <div class="note warn">The lower non-professional price needs a live, funded futures account that Sierra Chart connects to at least once a month. Without it you get delayed data. Prop firm evaluation accounts do not qualify.</div>
+    <p style="margin-top:12px;font-size:14px">Sierra's full instructions: <a href="https://www.sierrachart.com/index.php?page=doc/DenaliExchangeDataFeed.php" rel="noopener">Denali Exchange Data Feed</a>.</p>
+  </div>
+</section>
+
+<section class="step" id="chart">
+  <div class="num">05</div>
+  <h2>Open an ES chart and check the data</h2>
+  <ol>
+    <li><span class="m">File » New Chartbook</span>.</li>
+    <li><span class="m">File » Find Symbol</span>. Search ES and pick the E-mini S&amp;P 500 futures. The symbol looks different on each feed, so pick the ES entry your feed lists.</li>
+    <li><span class="m">Chart » Chart Settings</span>, Symbol section: set the continuous futures contract to <b>Volume Based Rollover, Back Adjusted</b>. The chart then follows the most traded contract and the history stays continuous across rolls.</li>
+    <li>For any tool that reads the order book: <span class="m">Global Settings » Symbol Settings</span>, find ES and set <b>Record Market Depth Data</b> to <b>Yes</b>.</li>
+    <li><span class="m">File » Save</span> the chartbook.</li>
+  </ol>
+  <div class="note">Price moving and the clock ticking on the chart means you are connected. If not, open <span class="m">Window » Message Log</span>. The answer is almost always in the last few lines.</div>
+</section>
+
+<section class="step" id="vault">
+  <div class="num">06</div>
+  <h2>Anthony's Vault members</h2>
+  <ol>
+    <li>In the Discord, send Anthony your <b>Sierra Chart username</b>.</li>
+    <li>When he confirms, close Sierra Chart and start it again. Sierra downloads the Vault studies when it starts.</li>
+    <li>Open <b>#studies</b> in the Discord. The chart setups, study sets and settings for each chart are there.</li>
+  </ol>
+</section>
+
+<section class="step" id="help">
+  <div class="num">—</div>
+  <h2>If something is off</h2>
+  <table>
+    <tr><th>YOU SEE</th><th>DO THIS</th></tr>
+    <tr><td>"Permission denied"</td><td>Sign the Rithmic agreements. Check the server. Type the password again by hand.</td></tr>
+    <tr><td>The Server list is empty</td><td>Press OK, wait 10 seconds, open Data/Trade Service Settings again. Still empty: restart Sierra.</td></tr>
+    <tr><td>Data is delayed</td><td>On Denali: check the agreements and that Sierra connected to your funded account this month.</td></tr>
+    <tr><td>No order book</td><td>Your data must include market depth. On Denali the CME option must say "with Market Depth".</td></tr>
+    <tr><td>A Vault study is missing</td><td>Check that Anthony confirmed your username. Restart Sierra Chart.</td></tr>
+  </table>
+</section>
+
+<section class="end">
+  <p>Want the tools on top of it? Anthony’s Vault is $100 / month: studies, chart setups and the Discord.</p>
+  <a class="btn" href="https://members.anthonyslab.shop/checkout?plan=149330">JOIN</a>
+</section>
+
+<footer>
+  <span>ANTHONY’S VAULT · NOT TRADING ADVICE</span>
+  <span><a href="index.html">HOME</a> · <a href="inside.html">INSIDE</a> · <a href="https://members.anthonyslab.shop/account">MEMBERS</a> · <a href="https://www.tiktok.com/@nasdaqant">TIKTOK</a></span>
+</footer>
+</div>
+<script>
+  const bs=[...document.querySelectorAll(".paths button")];
+  function pick(p){bs.forEach(b=>b.classList.toggle("on",b.dataset.p===p));
+    document.querySelectorAll(".path").forEach(d=>d.classList.toggle("on",d.id==="p-"+p));}
+  bs.forEach(b=>b.onclick=()=>pick(b.dataset.p));
+  if(location.hash==="#denali")pick("denali");
+</script>
+</body>
+</html>
